@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View,TouchableOpacity,TextInput,ScrollView } from 'react-native';
+import { StyleSheet, Text, View,TouchableOpacity,TextInput,ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from './color';
+import { Fontisto } from '@expo/vector-icons'; 
 
 
 const STORAGE_KEY = "@toDos"
@@ -29,7 +30,6 @@ export default function App() {
     if(text === ""){
       return
     }
-    // alert(text)
     const newTodos = {
       ...toDos,
       [Date.now()]: {text,work:working}
@@ -37,6 +37,30 @@ export default function App() {
     setTodos(newTodos)
     saveTodos(newTodos)
     setText("");
+  }
+
+
+  const deleteTodo = (key) => {
+    Alert.alert(
+      "Delete To do?",
+      "Are you sure?",
+      [
+        {
+          text : "Cancel",
+          style:"cancel"
+        },
+        {
+          text : "I'm sure",
+          onPress:async ()=> {
+            const newToDos = {...toDos};
+            delete newToDos[key];
+            setTodos(newToDos);
+            await saveTodos(newToDos);
+          }
+        }
+      ]
+    )
+    
   }
   return (
     <View style={styles.container}>
@@ -64,6 +88,10 @@ export default function App() {
               toDos[key].work == working ? 
               <View style={styles.toDo} key={key}>
                 <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                <TouchableOpacity onPress={() => deleteTodo(key)}>
+                  <Fontisto name="trash" size={18} color={theme.gray} />
+                </TouchableOpacity>
+                
               </View> : null
             )
           )}
@@ -100,7 +128,10 @@ const styles = StyleSheet.create({
     marginBottom:10,
     paddingVertical:20,
     paddingHorizontal:20,
-    borderRadius:10
+    borderRadius:10,
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between"
   },
   toDoText:{
     color:"white",
