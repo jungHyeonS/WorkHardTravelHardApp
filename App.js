@@ -42,7 +42,13 @@ export default function App() {
         value={text}
         placeholder={working ? "Add a To Do" : "Where do you want to go?"}/>
       </View>
-
+      <ScrollView>
+        {Object.keys(toDos).map(key => 
+            <View style={styles.toDo} key={key}>
+              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+            </View>
+          )}
+      </ScrollView>
     </View>
   );
 }
@@ -67,7 +73,19 @@ const styles = StyleSheet.create({
     paddingVertical:10,
     paddingHorizontal:15,
     borderRadius:30,
-    marginTop:10,
-    fontSize:16
+    marginVertical:10,
+    fontSize:16,
+  },
+  toDo:{
+    backgroundColor:theme.toDoBg,
+    marginBottom:10,
+    paddingVertical:20,
+    paddingHorizontal:20,
+    borderRadius:10
+  },
+  toDoText:{
+    color:"white",
+    fontSize:16,
+    fontWeight:"500"
   }
 });
