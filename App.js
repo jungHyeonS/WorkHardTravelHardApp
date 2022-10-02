@@ -14,6 +14,17 @@ export default function App() {
   const travel = () => setWorking(false)
   const work = () => setWorking(true);
 
+  const onChangeWork = async (type) => {
+    if(type == "work"){
+      setWorking(true);
+      await AsyncStorage.setItem("@work","work");
+    }else{
+      setWorking(false);
+      await AsyncStorage.setItem("@work","travel");
+    }
+    // await AsyncStorage.setItem("@work");
+  }
+
   const onChnageText = (paylod) => setText(paylod);
   const saveTodos = async (toSave) => {
     await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
@@ -23,8 +34,19 @@ export default function App() {
     setTodos(JSON.parse(s));
   }
 
+  const loadWork = async() => {
+    const work = await AsyncStorage.getItem("@work");
+    // console.log(work);
+    if(work == "work"){
+      setWorking(true);
+    }else{
+      setWorking(false);
+    }
+  }
+
   useEffect(()=>{
     loadToDOs();
+    loadWork()
   },[])
   const addTodo = () => {
     if(text === ""){
@@ -66,10 +88,10 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={work}>
+        <TouchableOpacity onPress={() => onChangeWork('work')}>
           <Text style={{...styles.btnText, color:working?"white":theme.gray}}>Work</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={travel}>
+        <TouchableOpacity onPress={() => onChangeWork('travel')}>
           <Text style={{...styles.btnText,color:!working?"white":theme.gray}}>Travel</Text>
         </TouchableOpacity>
       </View>
