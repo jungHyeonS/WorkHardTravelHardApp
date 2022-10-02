@@ -22,7 +22,6 @@ export default function App() {
       setWorking(false);
       await AsyncStorage.setItem("@work","travel");
     }
-    // await AsyncStorage.setItem("@work");
   }
 
   const onChnageText = (paylod) => setText(paylod);
@@ -36,7 +35,6 @@ export default function App() {
 
   const loadWork = async() => {
     const work = await AsyncStorage.getItem("@work");
-    // console.log(work);
     if(work == "work"){
       setWorking(true);
     }else{
@@ -54,11 +52,18 @@ export default function App() {
     }
     const newTodos = {
       ...toDos,
-      [Date.now()]: {text,work:working}
+      [Date.now()]: {text,work:working,complete:false}
     }
     setTodos(newTodos)
     saveTodos(newTodos)
     setText("");
+  }
+
+  const completeTodo = async (key) => {
+    const newToDos = {...toDos};
+    newToDos[key].complete = true;
+    setTodos(newToDos);
+    await saveTodos(newToDos);
   }
 
 
@@ -107,14 +112,26 @@ export default function App() {
       <ScrollView>
         {Object.keys(toDos).map(key => 
             (
-              toDos[key].work == working ? 
-              <View style={styles.toDo} key={key}>
-                <Text style={styles.toDoText}>{toDos[key].text}</Text>
-                <TouchableOpacity onPress={() => deleteTodo(key)}>
-                  <Fontisto name="trash" size={18} color={theme.gray} />
-                </TouchableOpacity>
-                
-              </View> : null
+              toDos[key].work == working ? (
+                <View style={styles.toDo} key={key}>
+                  {toDos[key].complete == false ? (
+                    <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                  ) : (
+                    <Text style={styles.toDoTextCompleate}>{toDos[key].text}</Text>
+                  )}
+                  
+                <View style={styles.control}>
+                  <TouchableOpacity onPress={() => completeTodo(key)}>
+                    <Fontisto style={styles.check} name="check" size={16} color={theme.gray}/>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity onPress={() => deleteTodo(key)}>
+                    <Fontisto name="trash" size={18} color={theme.gray} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              )
+               : null
             )
           )}
       </ScrollView>
@@ -159,5 +176,19 @@ const styles = StyleSheet.create({
     color:"white",
     fontSize:16,
     fontWeight:"500"
+  },
+  toDoTextCompleate:{
+    color:"white",
+    fontSize:16,
+    fontWeight:"500",
+    textDecorationLine:"line-through"
+  },
+  control:{
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between"
+  },
+  check:{
+    paddingHorizontal:10
   }
 });
