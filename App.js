@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View,TouchableOpacity,TextInput,ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View,TouchableOpacity,TextInput,ScrollView, Alert ,Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from './color';
 import { Fontisto } from '@expo/vector-icons'; 
@@ -27,7 +27,6 @@ export default function App() {
   const onChnageText = (paylod) => setText(paylod);
 
   const onTodoChange = async (payload,key) => {
-    // console.log(payload);
     const newToDos = {...toDos};
     newToDos[key].text = payload;
     setTodos(newToDos);
@@ -35,20 +34,35 @@ export default function App() {
   }
 
   const saveTodos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
+    try{
+      await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
+    }catch(e){
+      console.log(e);
+    }
+    
   }
   const loadToDOs = async() => {
-    const s = await AsyncStorage.getItem(STORAGE_KEY)
-    setTodos(JSON.parse(s));
+    try{
+      const s = await AsyncStorage.getItem(STORAGE_KEY)
+      setTodos(JSON.parse(s));
+    }catch(e){
+      console.log(e);
+    }
+    
   }
 
   const loadWork = async() => {
-    const work = await AsyncStorage.getItem("@work");
-    if(work == "work"){
-      setWorking(true);
-    }else{
-      setWorking(false);
+    try{
+      const work = await AsyncStorage.getItem("@work");
+      if(work == "work"){
+        setWorking(true);
+      }else{
+        setWorking(false);
+      }
+    }catch(e){
+      console.log(e);
     }
+    
   }
 
   useEffect(()=>{
@@ -76,27 +90,36 @@ export default function App() {
   }
 
 
-  const deleteTodo = (key) => {
-    Alert.alert(
-      "Delete To do?",
-      "Are you sure?",
-      [
-        {
-          text : "Cancel",
-          style:"cancel"
-        },
-        {
-          text : "I'm sure",
-          onPress:async ()=> {
-            const newToDos = {...toDos};
-            delete newToDos[key];
-            setTodos(newToDos);
-            await saveTodos(newToDos);
+  const deleteTodo = async (key) => {
+    if(Platform.OS === "web"){
+      const ok = confirm("Do you want to delete this To Do");
+      if(ok){
+        const newToDos = {...toDos};
+        delete newToDos[key];
+        setTodos(newToDos);
+        await saveTodos(newToDos);
+      }
+    }else{
+      Alert.alert(
+        "Delete To do?",
+        "Are you sure?",
+        [
+          {
+            text : "Cancel",
+            style:"cancel"
+          },
+          {
+            text : "I'm sure",
+            onPress:async ()=> {
+              const newToDos = {...toDos};
+              delete newToDos[key];
+              setTodos(newToDos);
+              await saveTodos(newToDos);
+            }
           }
-        }
-      ]
-    )
-    
+        ]
+      )
+    }
   }
   return (
     <View style={styles.container}>
