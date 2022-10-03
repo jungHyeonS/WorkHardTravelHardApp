@@ -25,6 +25,15 @@ export default function App() {
   }
 
   const onChnageText = (paylod) => setText(paylod);
+
+  const onTodoChange = async (payload,key) => {
+    // console.log(payload);
+    const newToDos = {...toDos};
+    newToDos[key].text = payload;
+    setTodos(newToDos);
+    await saveTodos(newToDos);
+  }
+
   const saveTodos = async (toSave) => {
     await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
   }
@@ -115,7 +124,8 @@ export default function App() {
               toDos[key].work == working ? (
                 <View style={styles.toDo} key={key}>
                   {toDos[key].complete == false ? (
-                    <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                    // <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                    <TextInput style={styles.toDoText} value={toDos[key].text} onChangeText={(event) => onTodoChange(event,key)}/>
                   ) : (
                     <Text style={styles.toDoTextCompleate}>{toDos[key].text}</Text>
                   )}
